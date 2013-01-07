@@ -17,8 +17,7 @@ public class Weave {
 
 	// TODO TestMethod. This method remove after test.
 	public static void main(String[] args) {
-		Class c = makeClass();
-		redefine(c,"hoge");
+		redefine("Stub");
 		Stub fc = new Stub();
 		System.out.println(fc.getClass());
 		System.out.println("return : " + fc.hoge());
@@ -34,18 +33,26 @@ public class Weave {
 
 	}
 
-	public static void redefine(Class c, String methodName) {
+	public static void redefine(String c) {
+		Class<?> cl = makeClass(c);
+		try {
+		System.out.println(cl.newInstance().getClass().getDeclaredMethod("hoge").invoke(cl.newInstance(), new Object[0]));
+		}catch (Exception ex) {
+			
+		}
+		
 		ClassPool cp = ClassPool.getDefault();
 
 		try {
-			CtClass target = cp.get("Stub");
-			target.addField(CtField.make("private static Stub_clone cl = new Stub_clone();",
-					target));
+			CtClass target = cp.get(c);
+			target.addField(CtField.make("private static java.lang.Object stub_clone = new "+cl.getName()+"();",target));
 			CtMethod[] methods = target.getDeclaredMethods();
 			for (CtMethod m : methods) {
-				m.insertBefore("return cl."+m.getName()+"($$);");
+				StringBuilder sb = new StringBuilder();
+				sb.append("return ($r)stub_clone.getClass().getDeclaredMethod(\""+m.getName()+"\",$sig).invoke(stub_clone, $args);");
+				m.setBody(""+sb);
 			}
-			target.addMethod(CtMethod.make("public static void set_Stub(Object stub) {cl = (Stub_clone)stub;}", target));
+			target.addMethod(CtMethod.make("public static void set_Stub(Object stub) {stub_clone = stub;}", target));
 			target.toClass(Thread.currentThread().getContextClassLoader());
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -82,12 +89,12 @@ public class Weave {
 		return null;
 	}
 	
-	public static Class makeClass () {
+	public static Class makeClass (String className) {
 		ClassPool cp = ClassPool.getDefault();
 
 		// create Stub_clone
 		try {
-			CtClass targetC = cp.get("Stub");
+			CtClass targetC = cp.get(className);
 			targetC.setName("Stub_clone");
 			return targetC.toClass(Thread.currentThread().getContextClassLoader());
 		} catch (Exception ex) {

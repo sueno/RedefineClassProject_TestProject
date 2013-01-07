@@ -16,7 +16,7 @@ public class Main {
 			System.err.println("Define Stub.hoge() {throw new NullPointerException();}");
 			System.err.println("Called Stub.hoge()");
 			System.out.println("return : " + fc.hoge());
-		} catch (Exception ex) {
+		} catch (NullPointerException ex) {
 			ex.printStackTrace();
 		}
 

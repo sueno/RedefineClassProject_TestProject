@@ -1,10 +1,9 @@
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.lang.annotation.Target;
+/**
+ * @author sueno
+ * 
+ */
+
 import java.lang.instrument.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javassist.ClassPool;
@@ -16,19 +15,18 @@ import javassist.Loader;
 @SuppressWarnings("all")
 public class Weave {
 
-	// TODO TestMethod. This method remove after test.
-
-
-	public static void premain(Instrumentation inst) {
-
+	public static String className = null;
+	
+	public static void premain(Instrumentation inst, String args[]) {
+		redefine(args[0]);
 	}
 
 	public static void redefine(String c) {
-		Class<?> cl = makeClass(c);
-
-		ClassPool cp = ClassPool.getDefault();
-
+		className = c;
 		try {
+			Class<?> cl = makeClass(c);
+
+			ClassPool cp = ClassPool.getDefault();
 			CtClass target = cp.get(c);
 			target.addField(CtField.make(
 					"private static java.lang.Object stub_clone = new "
@@ -52,10 +50,24 @@ public class Weave {
 		}
 	}
 
+	public static Class makeClass(String className) {
+		ClassPool cp = ClassPool.getDefault();
+		// create Stub_clone
+		try {
+			CtClass targetC = cp.get(className);
+			targetC.setName("Stub_clone");
+			return targetC.toClass(Thread.currentThread()
+					.getContextClassLoader());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
+	
 	public static void defineStub(String methodName, String methodValue) {
 		try {
 			Object o = define(methodName, methodValue).newInstance();
-			Class c = Class.forName("Stub");
+			Class c = Class.forName(className);
 			Method[] mm = c.getDeclaredMethods();
 			Method m = c.getDeclaredMethod("set_Stub", Object.class);
 			m.invoke(null, o);
@@ -71,8 +83,6 @@ public class Weave {
 		try {
 			CtClass targetC = cp.get("Stub_clone");
 			targetC.defrost();
-			// targetC.setName("Dummy");
-			// targetC.setSuperclass();
 			CtMethod targetM = targetC.getDeclaredMethod(methodName);
 			targetM.insertBefore(methodValue);
 
@@ -83,18 +93,4 @@ public class Weave {
 		return null;
 	}
 
-	public static Class makeClass(String className) {
-		ClassPool cp = ClassPool.getDefault();
-
-		// create Stub_clone
-		try {
-			CtClass targetC = cp.get(className);
-			targetC.setName("Stub_clone");
-			return targetC.toClass(Thread.currentThread()
-					.getContextClassLoader());
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		return null;
-	}
 }

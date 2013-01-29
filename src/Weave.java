@@ -18,10 +18,10 @@ public class Weave {
 	public static String className = null;
 	
 	public static void premain(Instrumentation inst, String args[]) {
-		redefine(args[0]);
+		redefineable(args[0]);
 	}
 
-	public static void redefine(String c) {
+	public static void redefineable(String c) {
 		className = c;
 		try {
 			Class<?> cl = makeClass(c);

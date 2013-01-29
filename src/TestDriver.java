@@ -6,7 +6,7 @@ import org.junit.Test;
 public class TestDriver {
 
 	static {
-		Weave.redefine("Stub");
+		Weave.redefineable("Stub");
 	}
 	
 	@Test

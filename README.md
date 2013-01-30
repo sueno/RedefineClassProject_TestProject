@@ -1,5 +1,26 @@
 RedefineClassProject (試作)
 =========================
+実行時にクラスを何度でも再定義可能にするライブラリです．
+
+メソッド単位での再定義が可能です．
+
+なお，クラスを再定義すると，再定義前のクラスへの参照は無くなり，
+再定義後新たに生成されたインスタンスが参照されます．
+
+javassistライブラリが必要です．
+
+用途
+---
+・ユニットテストのスタブ等
+
+制約事項
+---
+・継承不可能なクラスは再定義出来ません(今後改善)
+
+・依存関係を持つものは再定義出来ません
+
+・コンストラクタに引数をもつものは再定義出来ません(未実装)
+
 
 動作例
 ---
@@ -9,7 +30,7 @@ Main.java
 public class Main {
 	public static void main(String[] args) {
 		
-		//Weaveクラスを変更可能に
+		//Stubクラスを変更可能に
 		Weave.redefineable("Stub");
 		
 		//Stubクラスを生成
@@ -19,8 +40,14 @@ public class Main {
 		System.err.println("Called Stub.hoge()");
 		System.out.println("return : " + fc.hoge());
 		
+		try  {
+		Thread.currentThread().sleep(100);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
 		//戻り値の値を変更
-		Weave.defineStub("hoge", "return -1;");
+		Weave.defineTarget("hoge", "return -1;");
 		System.err.println("\nDefine Stub.hoge() {return -1;}");
 		System.err.println("Called Stub.hoge()");
 		System.out.println("return : " + fc.hoge());
@@ -28,7 +55,7 @@ public class Main {
 		//例外(NullPointerException)を吐くようにする
 		try {
 			System.err.println("\nDefine Stub.hoge() {throw new NullPointerException(\"嘘だよ\");}");
-			Weave.defineStub("hoge", "throw new NullPointerException(\"嘘だよ\");");
+			Weave.defineTarget("hoge", "throw new NullPointerException(\"嘘だよ\");");
 			System.err.println("Called Stub.hoge()");
 			System.out.println("return : " + fc.hoge()+"\n");
 		} catch (NullPointerException ex) {
@@ -37,7 +64,7 @@ public class Main {
 		
 		//例外(IllegalArgumentException)を吐くようにする
 		try {
-			Weave.defineStub("hoge", "throw new IllegalArgumentException(\"嘘だよ\");");
+			Weave.defineTarget("hoge", "throw new IllegalArgumentException(\"嘘だよ\");");
 			System.err.println("\nDefine Stub.hoge() {throw new IllegalArgumentException(\"嘘だよ\");}");
 			System.err.println("Called Stub.hoge()");
 			System.out.println("return : " + fc.hoge()+"\n");
@@ -45,6 +72,7 @@ public class Main {
 			ex.printStackTrace();
 		}
 
+		System.out.println("end");
 	}
 }
 ```

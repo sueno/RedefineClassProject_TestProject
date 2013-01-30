@@ -18,7 +18,7 @@ public class TestDriver {
 	@Test
 	public void test_changeReturn() {
 		Stub fc = new Stub();
-		Weave.defineStub("hoge", "return -1;");
+		Weave.defineTarget("hoge", "return -1;");
 		assertEquals(-1,fc.hoge());
 
 	}
@@ -27,7 +27,7 @@ public class TestDriver {
 	public void test_addThrow() {
 		try {
 			Stub fc = new Stub();
-			Weave.defineStub("hoge", "throw new NullPointerException();");
+			Weave.defineTarget("hoge", "throw new NullPointerException();");
 			fail("expected:<NullPointerException> but was <"+fc.hoge()+">");
 		} catch (NullPointerException expected) {
 		} catch (Throwable th) {

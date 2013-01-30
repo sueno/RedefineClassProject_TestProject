@@ -64,7 +64,7 @@ public class Weave {
 		return null;
 	}
 	
-	public static void defineStub(String methodName, String methodValue) {
+	public static void defineTarget(String methodName, String methodValue) {
 		try {
 			Object o = define(methodName, methodValue).newInstance();
 			Class c = Class.forName(className);

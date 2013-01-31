@@ -26,51 +26,46 @@ javassistライブラリが必要です．
 
 動作例
 ---
-import info.nohoho.weave.Weave;
 
 Main.java
 ```
+import info.nohoho.weave.Weave;
+
 public class Main {
 	public static void main(String[] args) {
-		
-		//Stubクラスを変更可能に
-		Weave.redefineable("Stub");
-		
-		//Stubクラスを生成
+
+		// Stubクラスを変更可能に
+		Weave.redefineable("testRun.Stub");
+
+		// Stubクラスを生成
 		Stub fc = new Stub();
-		
-		//通常の呼び出し
+
+		// 通常の呼び出し
 		System.err.println("Called Stub.hoge()");
 		System.out.println("return : " + fc.hoge());
-		
-		try  {
-		Thread.currentThread().sleep(100);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		
-		//戻り値の値を変更
+
+		// 戻り値の値を変更
 		Weave.defineTarget("hoge", "return -1;");
 		System.err.println("\nDefine Stub.hoge() {return -1;}");
 		System.err.println("Called Stub.hoge()");
 		System.out.println("return : " + fc.hoge());
 
-		//例外(NullPointerException)を吐くようにする
+		// 例外(NullPointerException)を吐くようにする
+		System.err.println("\nDefine Stub.hoge() {throw new NullPointerException(\"嘘だよ\");}");
+		Weave.defineTarget("hoge", "throw new NullPointerException(\"嘘だよ\");");
 		try {
-			System.err.println("\nDefine Stub.hoge() {throw new NullPointerException(\"嘘だよ\");}");
-			Weave.defineTarget("hoge", "throw new NullPointerException(\"嘘だよ\");");
 			System.err.println("Called Stub.hoge()");
-			System.out.println("return : " + fc.hoge()+"\n");
+			System.out.println("return : " + fc.hoge() + "\n");
 		} catch (NullPointerException ex) {
 			ex.printStackTrace();
 		}
-		
-		//例外(IllegalArgumentException)を吐くようにする
+
+		// 例外(IllegalArgumentException)を吐くようにする
+		Weave.defineTarget("hoge", "throw new IllegalArgumentException(\"嘘だよ\");");
+		System.err.println("\nDefine Stub.hoge() {throw new IllegalArgumentException(\"嘘だよ\");}");
 		try {
-			Weave.defineTarget("hoge", "throw new IllegalArgumentException(\"嘘だよ\");");
-			System.err.println("\nDefine Stub.hoge() {throw new IllegalArgumentException(\"嘘だよ\");}");
 			System.err.println("Called Stub.hoge()");
-			System.out.println("return : " + fc.hoge()+"\n");
+			System.out.println("return : " + fc.hoge() + "\n");
 		} catch (NullPointerException ex) {
 			ex.printStackTrace();
 		}
@@ -125,6 +120,6 @@ Exception in thread "main" java.lang.IllegalArgumentException: 嘘だよ
 ---
 再定義対象とするクラスは，Proxy化し，実体(対象クラスを継承したクラス)への参照を持ちます．
 
-再定義ごとに，実体が生成されます．実体の名前は「実体クラス名_clone」です．
+再定義ごとに，実体が生成されます．実体の名前は「$Clone_実体クラス名」です．
 
 内部でリフレクションを用いている，動的に生成したクラスを使用していることから，本来のクラス構成とはだいぶ異なります．(エラー文には注意)

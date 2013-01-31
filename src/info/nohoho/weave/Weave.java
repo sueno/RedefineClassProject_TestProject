@@ -53,10 +53,10 @@ public class Weave {
 
 	public static Class makeClass(String className) {
 		ClassPool cp = ClassPool.getDefault();
-		// create Stub_clone
+		// create $Clone_"+className+"
 		try {
 			CtClass targetC = cp.get(className);
-			targetC.setName("Stub_clone");
+			targetC.setName("$Clone_"+className+"");
 			return targetC.toClass(Thread.currentThread()
 					.getContextClassLoader());
 		} catch (Exception ex) {
@@ -80,9 +80,9 @@ public class Weave {
 	public static Class define(String methodName, String methodValue) {
 		ClassPool cp = ClassPool.getDefault();
 
-		// create Stub_clone
+		// create $Clone_"+className+"
 		try {
-			CtClass targetC = cp.get("Stub_clone");
+			CtClass targetC = cp.get("$Clone_"+className+"");
 			targetC.defrost();
 			CtMethod targetM = targetC.getDeclaredMethod(methodName);
 			targetM.insertBefore(methodValue);

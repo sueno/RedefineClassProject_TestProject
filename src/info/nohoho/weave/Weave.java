@@ -1,3 +1,4 @@
+package info.nohoho.weave;
 /**
  * @author sueno
  * 

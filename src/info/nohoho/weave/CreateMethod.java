@@ -1,3 +1,5 @@
+package info.nohoho.weave;
+
 import java.io.ObjectInputStream.GetField;
 import java.lang.reflect.Method;
 
@@ -19,12 +21,16 @@ public class CreateMethod {
 		Object returnObj;
 		
 		boolean b = addProxyMethod(targetClass);
-		for (Method m : Stub.class.getDeclaredMethods()) {
-			System.out.print(""+m.getName()+"()");
-			for (Class c : m.getParameterTypes()) {
-				System.out.print(" :"+c.getName());
+		try {
+			for (Method m : Class.forName(targetClass).getDeclaredMethods()) {
+				System.out.print(""+m.getName()+"()");
+				for (Class c : m.getParameterTypes()) {
+					System.out.print(" :"+c.getName());
+				}
+				System.out.println("");
 			}
-			System.out.println("");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 		System.out.println("");
 //		try {

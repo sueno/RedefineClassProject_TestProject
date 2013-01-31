@@ -26,6 +26,7 @@ javassistライブラリが必要です．
 
 動作例
 ---
+import info.nohoho.weave.Weave;
 
 Main.java
 ```
